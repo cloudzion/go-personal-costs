@@ -1,0 +1,33 @@
+{{define "content"}}
+    <h2>Добавить новую трату</h2>
+    <form action="/" method="POST">
+        <input type="number" step="0.01" name="amount" placeholder="Сумма (например, 250.50)" required>
+        <input type="text" name="description" placeholder="Описание (например, Продукты)" required>
+        <input type="date" name="date" required>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <h2>Список ваших расходов</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Сумма</th>
+                <th>Описание</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .}}
+            <tr>
+                <td>{{.Amount}} руб.</td>
+                <td>{{.Description}}</td>
+                <td>{{.Date.Format "02.01.2006"}}</td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="3" style="text-align: center; color: #888;">Трат пока нет. Добавьте первую!</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+{{end}}

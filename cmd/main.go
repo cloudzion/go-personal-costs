@@ -3,20 +3,23 @@ package main
 import (
 	"fmt"
 	"net/http"
-
 	"go-personal-costs/internal/handlers"
+	"go-personal-costs/internal/repository"
 )
 
 func main() {
-	mux := http.NewServeMux()
-
-	// Подключаем наш обработчик интерфейса
-	mux.HandleFunc("/", handlers.ExpensesHandler)
-
-	fmt.Println("Сервер Этапа 2 успешно запущен на http://localhost:8080")
-	
-	err := http.ListenAndServe(":8080", mux)
+	// Создаем репозиторий (он сам откроет expenses.db)
+	repo, err := repository.NewExpenseRepository()
 	if err != nil {
-		fmt.Printf("Ошибка запуска сервера: %v\n", err)
+		panic(err)
 	}
+	handlers.Repo = repo
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handlers.ExpensesHandler)
+	mux.HandleFunc("/edit", handlers.EditHandler)
+	mux.HandleFunc("/delete", handlers.DeleteHandler)
+
+	fmt.Println("Сервер Этапа 3 (SQLite + Repository) запущен на http://localhost:8080")
+	http.ListenAndServe(":8080", mux)
 }

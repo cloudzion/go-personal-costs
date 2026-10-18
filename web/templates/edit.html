@@ -1,0 +1,16 @@
+{{define "content"}}
+    <h2>Редактировать трату #{{.ID}}</h2>
+    <form action="/edit?id={{.ID}}" method="POST">
+        <label>Сумма:</label>
+        <input type="number" step="0.01" name="amount" value="{{.Amount}}" required>
+        
+        <label>Описание:</label>
+        <input type="text" name="description" value="{{.Description}}" required>
+        
+        <label>Дата:</label>
+        <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}" required>
+        
+        <button type="submit" style="background-color: #007bff;">Сохранить изменения</button>
+        <a href="/" style="display: block; text-align: center; margin-top: 10px; color: #555;">Отмена</a>
+    </form>
+{{end}}

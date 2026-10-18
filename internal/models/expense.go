@@ -2,9 +2,9 @@ package models
 
 import "time"
 
-// Expense описывает структуру одной траты
 type Expense struct {
-	Amount      float64   // Сумма
-	Description string    // Описание
-	Date        time.Time // Дата
+	ID          int       // Добавили ID для CRUD операций
+	Amount      float64   
+	Description string    
+	Date        time.Time 
 }

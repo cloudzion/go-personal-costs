@@ -2,9 +2,16 @@ package models
 
 import "time"
 
+type Category struct {
+	ID   int
+	Name string
+}
+
 type Expense struct {
-	ID          int       // Добавили ID для CRUD операций
-	Amount      float64   
-	Description string    
-	Date        time.Time 
+	ID           int
+	Amount       float64
+	Description  string
+	Date         time.Time
+	CategoryID   int
+	CategoryName string
 }

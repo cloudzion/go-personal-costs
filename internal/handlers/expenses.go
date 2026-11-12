@@ -12,6 +12,7 @@ import (
 var Repo *repository.ExpenseRepository
 
 type PageData struct {
+	IsAuth         bool
 	Expenses       []models.Expense
 	Categories     []models.Category
 	FilterCategory string
@@ -21,12 +22,15 @@ type PageData struct {
 }
 
 func ExpensesHandler(w http.ResponseWriter, r *http.Request) {
+	// Извлекаем userID из контекста (его туда положил AuthMiddleware)
+	userID := r.Context().Value(UserIDKey).(int)
+
 	if r.Method == http.MethodGet {
 		catFilter := r.URL.Query().Get("category")
 		fromFilter := r.URL.Query().Get("from")
 		toFilter := r.URL.Query().Get("to")
 
-		expensesList, err := Repo.GetFiltered(catFilter, fromFilter, toFilter)
+		expensesList, err := Repo.GetFiltered(userID, catFilter, fromFilter, toFilter)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -39,6 +43,7 @@ func ExpensesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		data := PageData{
+			IsAuth:         true,
 			Expenses:       expensesList,
 			Categories:     categoriesList,
 			FilterCategory: catFilter,
@@ -65,19 +70,20 @@ func ExpensesHandler(w http.ResponseWriter, r *http.Request) {
 			date = time.Now()
 		}
 
-		Repo.Create(amount, desc, date, catID)
+		Repo.Create(userID, amount, desc, date, catID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 }
 
 func EditHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(UserIDKey).(int)
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 
 	if r.Method == http.MethodGet {
-		exp, err := Repo.GetByID(id)
+		exp, err := Repo.GetByID(id, userID)
 		if err != nil {
-			http.Error(w, "Запись не найдена", http.StatusNotFound)
+			http.Error(w, "Запись не найдена или у вас нет прав", http.StatusNotFound)
 			return
 		}
 
@@ -88,6 +94,7 @@ func EditHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		data := PageData{
+			IsAuth:      true,
 			EditExpense: exp,
 			Categories:  categoriesList,
 		}
@@ -108,13 +115,14 @@ func EditHandler(w http.ResponseWriter, r *http.Request) {
 		catID, _ := strconv.Atoi(r.FormValue("category_id"))
 		date, _ := time.Parse("2006-01-02", r.FormValue("date"))
 
-		Repo.Update(id, amount, desc, date, catID)
+		Repo.Update(id, userID, amount, desc, date, catID)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value(UserIDKey).(int)
 	id, _ := strconv.Atoi(r.URL.Query().Get("id"))
-	Repo.Delete(id)
+	Repo.Delete(id, userID)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

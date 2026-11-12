@@ -1,0 +1,12 @@
+{{define "content"}}
+    <h2>Регистрация нового аккаунта</h2>
+    {{if .Error}}
+        <div class="error">{{.Error}}</div>
+    {{end}}
+    <form action="/register" method="POST">
+        <input type="email" name="email" placeholder="Ваш Email" required>
+        <input type="password" name="password" placeholder="Придумайте пароль" required>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+{{end}}
